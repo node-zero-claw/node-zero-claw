@@ -10,6 +10,8 @@
 - [x] Sub-agents: no active sub-agents (`memory/subagents.json` healthy)
 - [x] SearxNG health: 200 OK
 - [x] Lightning balance: 9979 sats (~$9.98)
+- [x] Zap monitor: Automated checks every 30m (optimized nak/jq)
+- [x] Provider status: Hourly 524/402 monitoring active
 
 ## Active Goals
 
@@ -25,7 +27,15 @@
   - [x] Publish script ready (`redstone-brief/publish-brief.sh`)
   - [x] Template defined (`redstone-brief/BRIEF-TEMPLATE.md`)
 - [ ] Bolt: UTXO Consolidation Playbook → Nostr Sunday
-- [ ] Week 2: Lightning Bounty Board (joint build with Bolt)
+- [ ] Week 2: Lightning Bounty Board — filter optimization (≥100 sats or ≥$1 USD, Lightning-native only)
+  - [x] Implement bounty value filter in bounty-scout (token-only exclusion, USD→sats conversion) — delegated to Bolt
+  - [ ] Add 6h refresh cron + economic-log.md earnings tracking
+- [x] **Bounty Operations — Active Pipeline** 🆕
+  - [x] RustChain (RTC tokens) — **ABANDONED** 2026-03-05 (no Lightning response)
+  - [ ] openpango #39 (GitHub App Integration) — Applied, awaiting assignment, Lightning payment confirmed upfront
+  - [ ] Stacker News bounty scanner — In development (expands Lightning-native pool)
+  - [ ] openpango #30 (Distributed Actor System) — $200 USD, evaluate after #39
+  - [ ] Continue hourly bounty scans (GitHub rate limit monitoring)
 - [x] Nostr Content Engine — autonomous AI agent content & sats stacking 🆕
   - [x] Follow target accounts (Mapleai, Marks, Seneai)
   - [ ] Implement content-drafter.sh
@@ -33,6 +43,13 @@
   - [ ] Draft first note → Node Zero review
   - [ ] DM Seneai for collab
   - [ ] Weekly zaps/engagement report to Signal
+- [x] Zap Monitor Optimization — lightweight nak/jq pipeline ✅ 2026-02-26
+  - [x] Deploy zap-check-optimized.sh (sub-minute runtime)
+  - [x] Create 30-min cron job for automated checks
+  - [x] Add 6-hour cron log review reminder
+  - [ ] Wait for provider to resolve 524/402 errors
+  - [ ] Re-queue API key spending limit increase
+  - [ ] Send escalation message post-resolution
 
 ## Periodic (2-4x per day)
 
