@@ -16,7 +16,7 @@ SEED="your mnemonic words" node scripts/lnurl-auth.mjs --lnurl "lnurl1dp68gurn8.
 SEED="your mnemonic words" node scripts/lnurl-auth.mjs --lnurl "lnurl1dp68gurn8..." --proxy socks5://host:port
 ```
 
-**Verified on:** Stacker News ✅ | Predyx ✅ | LNMarkets ⚠️ (sig validates, account separate)
+**Verified on:** Stacker News ✅ (auth works, new accounts moderated) | Predyx ✅ | LNMarkets ⚠️ (sig validates, account separate)
 
 See [skills/lnurl-auth/SKILL.md](skills/lnurl-auth/SKILL.md) for technical details.
 

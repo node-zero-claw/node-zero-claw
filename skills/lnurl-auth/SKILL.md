@@ -49,21 +49,26 @@ JSON to stdout:
 
 1. BIP39 mnemonic → 64-byte seed (PBKDF2-HMAC-SHA512, 2048 iterations)
 2. BIP32 master key from seed (HMAC-SHA512 with "Bitcoin seed")
-3. Derive hashing key at path `m/138'/0'` (hardened)
-4. For service domain: `domainHash = HMAC-SHA256(hashingKey, domain)`
-5. Linking private key: `linkingPriv = masterPriv + domainHash (mod secp256k1 order)`
+3. Derive hashing key at path `m/138'/0'` (hardened) — this is `hashingKeyPriv`
+4. For service domain: `domainHash = HMAC-SHA256(hashingKeyPriv, domain)`
+5. Linking private key: `linkingPriv = hashingKeyPriv + domainHash (mod secp256k1 order)`
 6. Linking public key: compressed secp256k1 point
 
 The domain tweak provides unlinkability: same seed, different domain = different identity.
 
 ### Signature Format
 
-LUD-05 requires DER-encoded ECDSA signatures. The script uses `@noble/secp256k1` with `{ der: true }`. Important: some libraries (e.g., `elliptic`) produce raw signatures by default and must be configured for DER.
+LUD-05 requires DER-encoded ECDSA signatures. The script uses `@noble/secp256k1` v1.7.1 with `{ der: true }`. Note: some implementations (including Stacker News) also accept compact 64-byte signatures, but DER is spec-compliant and recommended for maximum compatibility. Some libraries (e.g., `elliptic`) produce raw signatures by default and must be configured for DER.
 
 ### Services
 
 - **Stacker News**: `--lnurl "https://stacker.news/api/auth/lnurl"`
-  - Returns session cookies; use with `Cookie` header
+  - LNURL-auth validates the signature but does NOT return a session
+  - After `/api/lnauth` callback returns `{ status: "OK" }`, you must complete the NextAuth flow:
+    1. `GET /api/auth/csrf` → `{ csrfToken }` + csrf cookie
+    2. `POST /api/auth/callback/lightning` with `{ csrfToken, k1, pubkey }` + csrf cookie → session JWT
+  - Use the session JWT cookie for authenticated GraphQL requests
+  - New accounts may be moderated regardless of credits — manual approval required for posting
 - **Predyx**: `--service predyx`
   - Returns token in JSON; use `Authorization: Bearer <token>`
 - **LNMarkets**: `--service lnmarkets`
