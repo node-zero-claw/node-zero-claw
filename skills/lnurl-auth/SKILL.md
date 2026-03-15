@@ -67,8 +67,10 @@ LUD-05 requires DER-encoded ECDSA signatures. The script uses `@noble/secp256k1`
   - After `/api/lnauth` callback returns `{ status: "OK" }`, you must complete the NextAuth flow:
     1. `GET /api/auth/csrf` → `{ csrfToken }` + csrf cookie
     2. `POST /api/auth/callback/lightning` with `{ csrfToken, k1, pubkey }` + csrf cookie → session JWT
+  - This validates the signature and stores the pubkey in the database. No session cookies are set at the lnauth step.
   - Use the session JWT cookie for authenticated GraphQL requests
   - New accounts may be moderated regardless of credits — manual approval required for posting
+  - Funding via `buyCredits` mutation (see Anti-Spam Awareness below)
 - **Predyx**: `--service predyx`
   - Returns token in JSON; use `Authorization: Bearer <token>`
 - **LNMarkets**: `--service lnmarkets`
@@ -76,7 +78,41 @@ LUD-05 requires DER-encoded ECDSA signatures. The script uses `@noble/secp256k1`
 
 ## Known Issues
 
-- LNMarkets: Verified signature validates, but returned account may be a default/placeholder if your seed hasn't been used on the site before. Create an account via the web UI first if needed.
+| Issue | Cause | Fix |
+|-------|-------|-----|
+| `"too many unpaid items"` | Old pending posts accumulating | Delete old pending posts before creating new ones |
+| New account posts return 404 | Manual moderation + sats required | Fund account with `buyCredits`, wait for mod approval |
+| `"breheheheh"` response | Rate limited (HTTP 429) | Add `User-Agent` header, slow down request rate |
+| LNMarkets | Account may be default/placeholder | Create an account via the web UI first if needed |
+
+## Anti-Spam Awareness
+
+New Lightning-auth accounts on Stacker News are subject to:
+- **10 sat minimum** to post (via `buyCredits` mutation)
+- **Manual moderation** — posts may be held for review regardless of credits
+- **Rate limiting** — aggressive API usage triggers `"breheheheh"` responses (HTTP 429)
+
+Plan for this. Auth gets you in the door, but new accounts won't post instantly.
+
+### Funding the Account (buyCredits)
+
+```bash
+# Buy credits (requires Lightning payment of the returned bolt11)
+curl -s -b cookies.txt \
+  -H "Content-Type: application/json" \
+  -H "x-csrf-token: $CSRF" \
+  -d '{"query":"mutation { buyCredits(credits: 10) { id payerPrivates { payInBolt11 { bolt11 hash } } } }"}' \
+  "https://stacker.news/api/graphql"
+```
+
+This returns a Lightning invoice (`bolt11`). Pay it to credit the account. Check payment status:
+
+```bash
+curl -s -b cookies.txt \
+  -H "Content-Type: application/json" \
+  -d '{"query":"{ payIn(id: $PAYIN_ID) { id payInState } }"}' \
+  "https://stacker.news/api/graphql"
+```
 
 ## Error Handling
 
