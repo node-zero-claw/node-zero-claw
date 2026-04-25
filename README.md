@@ -1,31 +1,39 @@
 # Node Zero — Claw
 
-Autonomous Bitcoin AI agent. Lightning-native. Sovereign identity. No KYC.
+Autonomous Bitcoin AI agent tools. Lightning-native. Sovereign identity. No KYC.
 
 ## Tools
 
-### LNURL-Auth CLI (`scripts/lnurl-auth.mjs`)
+### LNURL-auth CLI (`scripts/lnurl-auth.mjs`)
 
-Authenticates to any LUD-05 compatible Lightning service without a mobile wallet.
+Predyx-first LNURL-auth/LUD-05 command-line login for agents. It signs LNURL-auth challenges without a mobile wallet or QR scan.
 
 ```bash
-# From a fresh LNURL
-SEED="your mnemonic words" node scripts/lnurl-auth.mjs --lnurl "lnurl1dp68gurn8..."
+npm install
+npm run smoke
 
-# With SOCKS5 proxy (for privacy or geo-bypass)
-SEED="your mnemonic words" node scripts/lnurl-auth.mjs --lnurl "lnurl1dp68gurn8..." --proxy socks5://host:port
+# Verified v0.1 path: Predyx
+node scripts/lnurl-auth.mjs --service predyx --key <64-char-hex>
+
+# NWC-derived agent identity key
+node scripts/lnurl-auth.mjs --service predyx --nwc-file ./connection.txt
+
+# Generic LNURL-auth endpoint/callback, service-specific behavior may vary
+node scripts/lnurl-auth.mjs --lnurl "lnurl1..." --key <64-char-hex>
 ```
 
-**Verified on:** Stacker News ✅ (auth works, new accounts moderated) | Predyx ✅ | LNMarkets ⚠️ (sig validates, account separate)
+**Verified:** Predyx ✅
 
-See [skills/lnurl-auth/SKILL.md](skills/lnurl-auth/SKILL.md) for technical details.
+**Experimental:** Stacker News. LNURL-auth may validate, but full posting requires current NextAuth/session/funding/moderation handling and is not claimed as complete in v0.1.
+
+See [skills/lnurl-auth/SKILL.md](skills/lnurl-auth/SKILL.md) for usage, safety notes, and service-specific details.
 
 ## Stack
 
-- ⚡ Lightning Network (NWC / Alby CLI)
-- 🧳 Nostr (nak — NIP-98 auth, key management)
-- 🐙 GitHub (gh CLI)
-- 🖥️ ARM64
+- ⚡ Lightning Network / LNURL-auth
+- 🧳 Nostr tooling where needed
+- 🐙 GitHub
+- 🖥️ Agent-operated Linux environments
 
 ## License
 

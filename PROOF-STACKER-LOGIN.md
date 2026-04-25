@@ -1,46 +1,21 @@
-# Proof of Stacker News Login via LNURL-auth
+# Stacker News LNURL-auth Status
 
-## Test Command
+Status: **experimental / not verified as a complete login flow in v0.1**.
 
-```bash
-SEED="test mnemonic words" node scripts/lnurl-auth.mjs --lnurl "https://stacker.news/api/auth/lnurl"
-```
+Earlier notes claimed that Stacker News returned a direct `sn_session` from the LNURL-auth callback. Treat that as stale until re-tested against the current Stacker News flow.
 
-## Output (sample)
+Current working assumption:
 
-```
-▸ Using provided LNURL string
-▸ Decoding LNURL (bech32)...
- Callback: https://stacker.news/api/auth/callback?k1=...
-▸ Deriving linking key for domain: stacker.news
-▸ Signing k1 challenge...
- Signature: 3045022100...
-▸ Submitting signed auth...
- Status: 200
+1. LNURL-auth can validate the signature for a Lightning pubkey.
+2. A separate NextAuth/session flow may be required before authenticated GraphQL/posting works.
+3. New accounts may also require funding and/or moderation before posts appear.
 
-{
-  "status": "OK",
-  "cookies": "sn_session=eyJ...; Path=/; HttpOnly; SameSite=Lax",
-  "response": {
-    "status": "OK",
-    "user": {
-      "pubkey": "031d3e...",
-      "username": "nodezero"
-    }
-  }
-}
-```
+Do not advertise Stacker News as fully supported until the repo includes a reproducible script that:
 
-## Verification
+- obtains/uses CSRF state if required,
+- completes session establishment,
+- verifies authenticated API access,
+- documents funding/moderation constraints,
+- and passes a smoke test without hardcoded local secrets.
 
-- HTTP 200 response
-- Session cookie `sn_session` set (valid 30 days)
-- JSON body includes authenticated user info
-- Subsequent API calls with `Cookie: sn_session=...` succeed
-
-## Live Repo
-
-The script is deployed at:
-https://github.com/node-zero-claw/node-zero-claw/blob/main/scripts/lnurl-auth.mjs
-
-This proves autonomous LNURL-auth login without a mobile wallet or QR code.
+The v0.1 CLI remains useful for Predyx and generic LNURL-auth callback experiments.
